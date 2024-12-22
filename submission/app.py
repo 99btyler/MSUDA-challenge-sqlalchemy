@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-from sqlalchemy import create_engine
+from flask import Flask, jsonify, request
+from sqlalchemy import create_engine, func
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
@@ -19,7 +19,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return  """
-            <html style="font-family:arial; text-align:center;">
+            <html style="font-family:arial;">
                 <head>
                     <h1>Climate App</h1>
                 </head>
@@ -38,13 +38,13 @@ def index():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    precipitation_data = session.query(
+    precipitation = session.query(
         Measurement.prcp
     ).filter(
         Measurement.date >= "2016-08-23", Measurement.date <= "2017-08-23"
     ).all()
-    precipitation_data_list = [item[0] for item in precipitation_data]
-    return jsonify(precipitation_data_list)
+    precipitation_list = [item[0] for item in precipitation]
+    return jsonify(precipitation_list)
 
 @app.route("/api/v1.0/stations")
 def stations():
@@ -54,21 +54,33 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    temperature_data = session.query(
+    temperature = session.query(
         Measurement.tobs
     ).filter(
-        Measurement.station == "USC00519281", Measurement.date >= "2016-08-18", Measurement.date <= "2017-08-18"
+        Measurement.station == "USC00519281", Measurement.date >= "2016-08-23", Measurement.date <= "2017-08-23"
     ).all()
-    temperature_data_list = [item[0] for item in temperature_data]
-    return jsonify(temperature_data_list)
+    temperature_list = [item[0] for item in temperature]
+    return jsonify(temperature_list)
 
-@app.route("/api/v1.0/start")
-def start():
-    return "returns a JSON list of the minimum, average, and maximum temperature from the specified range"
+@app.route("/api/v1.0/<start>")
+def start(start):
+    min_avg_max = session.query(
+        func.MIN(Measurement.tobs), func.AVG(Measurement.tobs), func.MAX(Measurement.tobs)
+    ).filter(
+        Measurement.date >= start
+    ).all()
+    min_avg_max_list = [f"min:{item[0]}, avg:{item[1]}, max:{item[2]}" for item in min_avg_max]
+    return jsonify(min_avg_max_list)
 
-@app.route("/api/v1.0/start/end")
-def start_end():
-    return "returns a JSON list of the minimum, average, and maximum temperature from the specified range"
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start, end):
+    min_avg_max = session.query(
+        func.MIN(Measurement.tobs), func.AVG(Measurement.tobs), func.MAX(Measurement.tobs)
+    ).filter(
+        Measurement.date >= start, Measurement.date <= end
+    ).all()
+    min_avg_max_list = [f"min:{item[0]}, avg:{item[1]}, max:{item[2]}" for item in min_avg_max]
+    return jsonify(min_avg_max_list)
 
 # main
 if __name__ == "__main__":
