@@ -38,12 +38,18 @@ def index():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    return "returns a JSON list of the last 12 months of precipitation data"
+    precipitation_data = session.query(
+        Measurement.prcp
+    ).filter(
+        Measurement.date >= "2016-08-23", Measurement.date <= "2017-08-23"
+    ).all()
+    precipitation_data_list = [item[0] for item in precipitation_data]
+    return jsonify(precipitation_data_list)
 
 @app.route("/api/v1.0/stations")
 def stations():
     stations = session.query(Station.station).all()
-    station_list = [station[0] for station in stations]
+    station_list = [item[0] for item in stations]
     return jsonify(station_list)
 
 @app.route("/api/v1.0/tobs")
@@ -51,7 +57,7 @@ def tobs():
     temperature_data = session.query(
         Measurement.tobs
     ).filter(
-        Measurement.station == "USC00519281", Measurement.date <= "2017-08-18", Measurement.date >= "2016-08-18"
+        Measurement.station == "USC00519281", Measurement.date >= "2016-08-18", Measurement.date <= "2017-08-18"
     ).all()
     temperature_data_list = [item[0] for item in temperature_data]
     return jsonify(temperature_data_list)
