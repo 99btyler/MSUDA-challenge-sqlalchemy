@@ -1,0 +1,7 @@
+ul {
+    list-style-type: none;
+}
+
+ul li span {
+    color: #006eff;
+}
