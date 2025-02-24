@@ -3,7 +3,7 @@ MSU Data Analytics sqlalchemy-challenge
 
 # Summary
 ### Dataset
-This analysis makes use [a database](submission/database) which contains [two datasets](submission/database/data) (hawaii_measurements, hawaii_stations)
+This analysis makes use of [a database](submission/database) which contains [two datasets](submission/database/data) (hawaii_measurements, hawaii_stations)
 ### Questions
 Just to get us started, here are some basic things we decided to answer:
 * What is the most active station?
